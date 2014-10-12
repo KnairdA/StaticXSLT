@@ -2,6 +2,8 @@
 
 …is a [BuildXSLT](https://github.com/KnairdA/BuildXSLT) module implementing a static site generator in XSLT using [InputXSLT](https://github.com/KnairdA/InputXSLT).
 
+The prime example of how this framework may be used to generate a static website is the implementation of my [personal blog](https://github.com/KnairdA/blog.kummerlaender.eu/).
+
 ## Overview:
 
 The `src/steps` directory contains a chain of transformations which are processed by the build system as specified in `StaticXSLT.xml`.
@@ -33,7 +35,7 @@ The `StaticXSLT.xml` file defines a [BuildXSLT](https://github.com/KnairdA/Build
 In this example the input tree defines both the `source` and `target` directories relative to the working directory of the `ixslt` executable which is required to make use of the external functions provided by [InputXSLT](https://github.com/KnairdA/InputXSLT). The square brackets around the `StaticXSLT.xml` filename are instructing the custom include entity resolver to resolve the given path against the include path array provided to `ixslt`. This means that _StaticXSLT_ based websites may be generated as follows:
 
 ```
-xslt --input make.xml --transformation ../BuildXSLT/build.xsl --include ../StaticXSLT
+ixslt --input make.xml --transformation ../BuildXSLT/build.xsl --include ../StaticXSLT
 ```
 
 ## Levels:
