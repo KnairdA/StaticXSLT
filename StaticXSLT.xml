@@ -1,0 +1,6 @@
+<transformation mode="chain">
+	<link>src/steps/list.xsl</link>
+	<link>src/steps/plan.xsl</link>
+	<link>src/steps/process.xsl</link>
+	<link>src/steps/summarize.xsl</link>
+</transformation>
