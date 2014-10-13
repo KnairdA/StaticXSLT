@@ -85,6 +85,13 @@
 		<xsl:when test="$target/@mode = 'xpath'">
 			<xsl:value-of select="concat($prefix, '/', dyn:evaluate($target/@value))"/>
 		</xsl:when>
+		<xsl:otherwise>
+			<xsl:message terminate="yes">
+				<xsl:text>Invalid target mode "</xsl:text>
+				<xsl:value-of select="$target/@mode"/>
+				<xsl:text>"</xsl:text>
+			</xsl:message>
+		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
 
@@ -100,9 +107,16 @@
 						concat($prefix, '/', @source)
 					)/self::file/*/*"/>
 				</xsl:when>
-				<xsl:when test="@mode = 'expression'">
+				<xsl:when test="@mode = 'xpath'">
 					<xsl:copy-of select="dyn:evaluate(@source)"/>
 				</xsl:when>
+				<xsl:otherwise>
+					<xsl:message terminate="yes">
+						<xsl:text>Invalid support datasource mode "</xsl:text>
+						<xsl:value-of select="@mode"/>
+						<xsl:text>"</xsl:text>
+					</xsl:message>
+				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:element>
 	</xsl:for-each>
@@ -181,11 +195,18 @@
 								)/self::file/*/*"/>
 							</xsl:element>
 						</xsl:when>
-						<xsl:when test="$main_source/@mode = 'expression'">
+						<xsl:when test="$main_source/@mode = 'xpath'">
 							<xsl:element name="{$main_source/@target}">
 								<xsl:copy-of select="dyn:evaluate($main_source/@source)"/>
 							</xsl:element>
 						</xsl:when>
+						<xsl:otherwise>
+							<xsl:message terminate="yes">
+								<xsl:text>Invalid main datasource mode "</xsl:text>
+								<xsl:value-of select="$main_source/@mode"/>
+								<xsl:text>"</xsl:text>
+							</xsl:message>
+						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:with-param>
 				<xsl:with-param name="support"           select="$support_source"/>
