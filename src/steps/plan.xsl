@@ -23,28 +23,13 @@
 	<xsl:param name="path"/>
 	<xsl:param name="node"/>
 
-	<xsl:for-each select="$node/directory">
-		<xsl:choose>
-			<xsl:when test=".//file/@extension = '.xsl'">
-				<xsl:call-template name="traverse">
-					<xsl:with-param name="source" select="$source"/>
-					<xsl:with-param name="target" select="$target"/>
-					<xsl:with-param name="path"   select="concat($path, '/', @name)"/>
-					<xsl:with-param name="node"   select="."/>
-				</xsl:call-template>
-			</xsl:when>
-			<xsl:otherwise>
-				<task type="link">
-					<from>
-						<xsl:value-of select="concat($target, '/', $path, '/', @name)"/>
-					</from>
-					<to>
-						<xsl:value-of select="concat($source, '/', $path, '/', @name)"/>
-					</to>
-				</task>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:for-each>
+	<xsl:if test="count($node/file | $node/directory) &gt; 0">
+		<task type="directory">
+			<path>
+				<xsl:value-of select="concat($target, '/', $path)"/>
+			</path>
+		</task>
+	</xsl:if>
 
 	<xsl:for-each select="$node/file">
 		<xsl:choose>
@@ -73,6 +58,29 @@
 					</to>
 				</task>
 			</xsl:when>
+		</xsl:choose>
+	</xsl:for-each>
+
+	<xsl:for-each select="$node/directory">
+		<xsl:choose>
+			<xsl:when test=".//file/@extension = '.xsl'">
+				<xsl:call-template name="traverse">
+					<xsl:with-param name="source" select="$source"/>
+					<xsl:with-param name="target" select="$target"/>
+					<xsl:with-param name="path"   select="concat($path, '/', @name)"/>
+					<xsl:with-param name="node"   select="."/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<task type="link">
+					<from>
+						<xsl:value-of select="concat($target, '/', $path, '/', @name)"/>
+					</from>
+					<to>
+						<xsl:value-of select="concat($source, '/', $path, '/', @name)"/>
+					</to>
+				</task>
+			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:for-each>
 </xsl:template>

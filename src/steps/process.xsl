@@ -28,6 +28,14 @@
 	)/self::command/@result"/>
 </xsl:template>
 
+<xsl:template name="create_directory">
+	<xsl:param name="path"/>
+
+	<xsl:value-of select="InputXSLT:external-command(
+		concat('mkdir --parents ./', $path)
+	)/self::command/@result"/>
+</xsl:template>
+
 <xsl:template name="clean">
 	<xsl:param name="path"/>
 
@@ -262,6 +270,17 @@
 			<xsl:call-template name="create_link">
 				<xsl:with-param name="from" select="from"/>
 				<xsl:with-param name="to"   select="to"/>
+			</xsl:call-template>
+		</xsl:attribute>
+		<xsl:copy-of select="@* | node()"/>
+	</xsl:copy>
+</xsl:template>
+
+<xsl:template match="task[@type = 'directory']">
+	<xsl:copy>
+		<xsl:attribute name="result">
+			<xsl:call-template name="create_directory">
+				<xsl:with-param name="path" select="path"/>
 			</xsl:call-template>
 		</xsl:attribute>
 		<xsl:copy-of select="@* | node()"/>
