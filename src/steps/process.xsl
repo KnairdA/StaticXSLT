@@ -168,8 +168,17 @@
 <xsl:template name="process">
 	<xsl:param name="task"/>
 
-	<xsl:variable name="transformation" select="InputXSLT:read-file($task/source)/self::file/xsl:stylesheet"/>
-	<xsl:variable name="meta"           select="$transformation/self::xsl:stylesheet/xsl:variable[@name = 'meta']"/>
+	<xsl:variable name="transformation" select="InputXSLT:read-file($task/source)/self::file"/>
+
+	<xsl:if test="$transformation/@result = 'error'">
+		<xsl:message terminate="yes">
+			<xsl:text>Failed to read transformation "</xsl:text>
+			<xsl:value-of select="$task/source"/>
+			<xsl:text>"</xsl:text>
+		</xsl:message>
+	</xsl:if>
+
+	<xsl:variable name="meta"           select="$transformation/xsl:stylesheet/xsl:variable[@name = 'meta']"/>
 	<xsl:variable name="main_source"    select="$meta/*[local-name() = 'datasource' and @type = 'main']"/>
 	<xsl:variable name="support_source" select="$meta/*[local-name() = 'datasource' and @type = 'support']"/>
 	<xsl:variable name="target"         select="$meta/*[local-name() = 'target']"/>
@@ -186,7 +195,7 @@
 						</xsl:element>
 					</xsl:with-param>
 					<xsl:with-param name="support"           select="$support_source"/>
-					<xsl:with-param name="transformation"    select="$transformation"/>
+					<xsl:with-param name="transformation"    select="$transformation/xsl:stylesheet"/>
 					<xsl:with-param name="datasource_prefix" select="$task/meta/datasource_prefix"/>
 					<xsl:with-param name="target_prefix"     select="$task/target"/>
 					<xsl:with-param name="target"            select="$target"/>
@@ -219,7 +228,7 @@
 					</xsl:choose>
 				</xsl:with-param>
 				<xsl:with-param name="support"           select="$support_source"/>
-				<xsl:with-param name="transformation"    select="$transformation"/>
+				<xsl:with-param name="transformation"    select="$transformation/xsl:stylesheet"/>
 				<xsl:with-param name="datasource_prefix" select="$task/meta/datasource_prefix"/>
 				<xsl:with-param name="target_prefix"     select="$task/target"/>
 				<xsl:with-param name="target"            select="$target"/>
