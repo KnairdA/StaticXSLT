@@ -168,10 +168,11 @@
 <xsl:template name="process">
 	<xsl:param name="task"/>
 
-	<xsl:variable name="transformation" select="InputXSLT:read-file($task/source)/self::file/node()"/>
-	<xsl:variable name="meta"           select="$transformation/self::*[name() = 'xsl:stylesheet']/*[name() = 'xsl:variable' and @name = 'meta']"/>
-	<xsl:variable name="main_source"    select="$meta/datasource[@type = 'main']"/>
-	<xsl:variable name="support_source" select="$meta/datasource[@type = 'support']"/>
+	<xsl:variable name="transformation" select="InputXSLT:read-file($task/source)/self::file/xsl:stylesheet"/>
+	<xsl:variable name="meta"           select="$transformation/self::xsl:stylesheet/xsl:variable[@name = 'meta']"/>
+	<xsl:variable name="main_source"    select="$meta/*[local-name() = 'datasource' and @type = 'main']"/>
+	<xsl:variable name="support_source" select="$meta/*[local-name() = 'datasource' and @type = 'support']"/>
+	<xsl:variable name="target"         select="$meta/*[local-name() = 'target']"/>
 
 	<xsl:choose>
 		<xsl:when test="$main_source/@mode = 'iterate'">
@@ -188,7 +189,7 @@
 					<xsl:with-param name="transformation"    select="$transformation"/>
 					<xsl:with-param name="datasource_prefix" select="$task/meta/datasource_prefix"/>
 					<xsl:with-param name="target_prefix"     select="$task/target"/>
-					<xsl:with-param name="target"            select="$meta/target"/>
+					<xsl:with-param name="target"            select="$target"/>
 				</xsl:call-template>
 			</xsl:for-each>
 		</xsl:when>
@@ -221,7 +222,7 @@
 				<xsl:with-param name="transformation"    select="$transformation"/>
 				<xsl:with-param name="datasource_prefix" select="$task/meta/datasource_prefix"/>
 				<xsl:with-param name="target_prefix"     select="$task/target"/>
-				<xsl:with-param name="target"            select="$meta/target"/>
+				<xsl:with-param name="target"            select="$target"/>
 			</xsl:call-template>
 		</xsl:otherwise>
 	</xsl:choose>
