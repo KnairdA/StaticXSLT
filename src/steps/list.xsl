@@ -15,34 +15,23 @@
 
 <xsl:include href="../utility/datasource.xsl"/>
 
-<xsl:template name="list">
-	<xsl:param name="base"/>
+<xsl:template match="entry[@type != 'directory']">
+	<file name="{./name}" extension="{./extension}">
+		<xsl:copy-of select="full"/>
+	</file>
+</xsl:template>
 
-	<xsl:for-each select="InputXSLT:read-directory($base)/entry">
-		<xsl:choose>
-			<xsl:when test="@type = 'directory'">
-				<directory name="{./name}">
-					<xsl:call-template name="list">
-						<xsl:with-param name="base" select="./full"/>
-					</xsl:call-template>
-				</directory>
-			</xsl:when>
-			<xsl:otherwise>
-				<file name="{./name}" extension="{./extension}">
-					<xsl:copy-of select="full"/>
-				</file>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:for-each>
+<xsl:template match="entry[@type  = 'directory']">
+	<directory name="{./name}">
+		<xsl:apply-templates select="InputXSLT:read-directory(./full)"/>
+	</directory>
 </xsl:template>
 
 <xsl:template match="datasource">
 	<xsl:copy-of select="meta"/>
 
 	<source>
-		<xsl:call-template name="list">
-			<xsl:with-param name="base" select="meta/source"/>
-		</xsl:call-template>
+		<xsl:apply-templates select="InputXSLT:read-directory(meta/source)/entry"/>
 	</source>
 </xsl:template>
 
