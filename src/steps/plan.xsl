@@ -17,77 +17,99 @@
 
 <xsl:include href="../utility/datasource.xsl"/>
 
-<xsl:template name="traverse">
-	<xsl:param name="source"/>
-	<xsl:param name="target"/>
-	<xsl:param name="path"/>
+<xsl:variable name="source" select="$root/meta/source"/>
+<xsl:variable name="target" select="$root/meta/target"/>
+
+<xsl:template name="construct_level">
 	<xsl:param name="node"/>
+	<xsl:param name="path"/>
 
-	<xsl:if test="count($node/file | $node/directory) &gt; 0">
-		<task type="directory">
-			<path>
-				<xsl:value-of select="concat($target, '/', $path)"/>
-			</path>
-		</task>
-	</xsl:if>
+	<level>
+		<node>
+			<xsl:copy-of select="$node"/>
+		</node>
+		<path>
+			<xsl:value-of select="$path"/>
+		</path>
+	</level>
+</xsl:template>
 
-	<xsl:for-each select="$node/file">
-		<xsl:choose>
-			<xsl:when test="@extension = '.xsl'">
-				<task type="generate">
-					<meta>
-						<datasource_prefix>
-							<xsl:value-of select="$target"/>
-						</datasource_prefix>
-					</meta>
-					<source>
-						<xsl:value-of select="concat($source, '/', $path, '/', @name, @extension)"/>
-					</source>
-					<target>
-						<xsl:value-of select="concat($target, '/', $path)"/>
-					</target>
-				</task>
-			</xsl:when>
-			<xsl:when test="@extension = '.css'">
-				<task type="link">
-					<from>
-						<xsl:value-of select="concat($target, '/', $path, '/', @name, @extension)"/>
-					</from>
-					<to>
-						<xsl:value-of select="concat($source, '/', $path, '/', @name, @extension)"/>
-					</to>
-				</task>
-			</xsl:when>
-		</xsl:choose>
-	</xsl:for-each>
+<xsl:template match="node/file[@extension = '.xsl']">
+	<xsl:variable name="base_path" select="../../path"/>
 
-	<xsl:for-each select="$node/directory">
-		<xsl:choose>
-			<xsl:when test=".//file/@extension = '.xsl'">
-				<xsl:call-template name="traverse">
-					<xsl:with-param name="source" select="$source"/>
-					<xsl:with-param name="target" select="$target"/>
-					<xsl:with-param name="path"   select="concat($path, '/', @name)"/>
-					<xsl:with-param name="node"   select="."/>
-				</xsl:call-template>
-			</xsl:when>
-			<xsl:otherwise>
-				<task type="link">
-					<from>
-						<xsl:value-of select="concat($target, '/', $path, '/', @name)"/>
-					</from>
-					<to>
-						<xsl:value-of select="concat($source, '/', $path, '/', @name)"/>
-					</to>
-				</task>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:for-each>
+	<task type="generate">
+		<meta>
+			<datasource_prefix>
+				<xsl:value-of select="$target"/>
+			</datasource_prefix>
+		</meta>
+		<source>
+			<xsl:value-of select="concat($source, '/', $base_path, '/', @name, @extension)"/>
+		</source>
+		<target>
+			<xsl:value-of select="concat($target, '/', $base_path)"/>
+		</target>
+	</task>
+</xsl:template>
+
+<xsl:template match="node/file[@extension = '.css']">
+	<xsl:variable name="base_path" select="../../path"/>
+
+	<task type="link">
+		<from>
+			<xsl:value-of select="concat($target, '/', $base_path, '/', @name, @extension)"/>
+		</from>
+		<to>
+			<xsl:value-of select="concat($source, '/', $base_path, '/', @name, @extension)"/>
+		</to>
+	</task>
+</xsl:template>
+
+<xsl:template match="node/directory[.//file/@extension = '.xsl']">
+	<xsl:variable name="base_path" select="../../path"/>
+
+	<xsl:variable name="new_level">
+		<xsl:call-template name="construct_level">
+			<xsl:with-param name="path" select="concat($base_path, '/', @name)"/>
+			<xsl:with-param name="node" select="./node()"/>
+		</xsl:call-template>
+	</xsl:variable>
+
+	<xsl:apply-templates select="xalan:nodeset($new_level)/level"/>
+</xsl:template>
+
+<xsl:template match="node/directory[not(.//file/@extension = '.xsl')]">
+	<xsl:variable name="base_path" select="../../path"/>
+
+	<task type="link">
+		<from>
+			<xsl:value-of select="concat($target, '/', $base_path, '/', @name)"/>
+		</from>
+		<to>
+			<xsl:value-of select="concat($source, '/', $base_path, '/', @name)"/>
+		</to>
+	</task>
+</xsl:template>
+
+<xsl:template match="level[count(node/file | node/directory) &gt; 0]">
+	<task type="directory">
+		<path>
+			<xsl:value-of select="concat($target, '/', path)"/>
+		</path>
+	</task>
+
+	<xsl:apply-templates select="node/file | node/directory"/>
 </xsl:template>
 
 <xsl:template match="datasource">
 	<xsl:copy-of select="source"/>
 	<xsl:copy-of select="meta"/>
+
+	<xsl:variable name="new_level">
+		<xsl:call-template name="construct_level">
+			<xsl:with-param name="node" select="source/node()"/>
+		</xsl:call-template>
+	</xsl:variable>
 
 	<tasks>
 		<task type="clean">
@@ -96,11 +118,7 @@
 			</path>
 		</task>
 
-		<xsl:call-template name="traverse">
-			<xsl:with-param name="source" select="$root/meta/source"/>
-			<xsl:with-param name="target" select="$root/meta/target"/>
-			<xsl:with-param name="node"   select="source"/>
-		</xsl:call-template>
+		<xsl:apply-templates select="xalan:nodeset($new_level)/level"/>
 	</tasks>
 </xsl:template>
 
