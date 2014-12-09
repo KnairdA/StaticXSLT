@@ -65,6 +65,19 @@
 	</task>
 </xsl:template>
 
+<xsl:template match="node/directory">
+	<xsl:variable name="base_path" select="../../path"/>
+
+	<task type="link">
+		<from>
+			<xsl:value-of select="concat($target, '/', $base_path, '/', @name)"/>
+		</from>
+		<to>
+			<xsl:value-of select="concat($source, '/', $base_path, '/', @name)"/>
+		</to>
+	</task>
+</xsl:template>
+
 <xsl:template match="node/directory[.//file/@extension = '.xsl']">
 	<xsl:variable name="base_path" select="../../path"/>
 
@@ -76,19 +89,6 @@
 	</xsl:variable>
 
 	<xsl:apply-templates select="xalan:nodeset($new_level)/level"/>
-</xsl:template>
-
-<xsl:template match="node/directory[not(.//file/@extension = '.xsl')]">
-	<xsl:variable name="base_path" select="../../path"/>
-
-	<task type="link">
-		<from>
-			<xsl:value-of select="concat($target, '/', $base_path, '/', @name)"/>
-		</from>
-		<to>
-			<xsl:value-of select="concat($source, '/', $base_path, '/', @name)"/>
-		</to>
-	</task>
 </xsl:template>
 
 <xsl:template match="level[count(node/file | node/directory) &gt; 0]">
