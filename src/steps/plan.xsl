@@ -2,10 +2,9 @@
 <xsl:stylesheet
 	version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:dyn="http://exslt.org/dynamic"
 	xmlns:xalan="http://xml.apache.org/xalan"
 	xmlns:InputXSLT="function.inputxslt.application"
-	exclude-result-prefixes="dyn xalan InputXSLT"
+	exclude-result-prefixes="xalan InputXSLT"
 >
 
 <xsl:output

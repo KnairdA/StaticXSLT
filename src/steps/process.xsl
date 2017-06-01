@@ -39,9 +39,21 @@
 <xsl:template name="clean">
 	<xsl:param name="path"/>
 
-	<xsl:value-of select="InputXSLT:external-command(
-		concat('rm -r ./', $path, '; mkdir ./', $path)
+	<xsl:variable name="remove_status" select="InputXSLT:external-command(
+		concat('rm -r ./', $path)
 	)/self::command/@result"/>
+	<xsl:variable name="create_status" select="InputXSLT:external-command(
+		concat('mkdir ./', $path)
+	)/self::command/@result"/>
+
+	<xsl:choose>
+		<xsl:when test="( $remove_status = 'success' ) and ( $create_status = 'success' )">
+			<xsl:text>success</xsl:text>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:text>error</xsl:text>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template name="generate">
