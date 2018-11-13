@@ -51,7 +51,7 @@
 	</task>
 </xsl:template>
 
-<xsl:template match="node/file[@extension = '.css']">
+<xsl:template match="node/file[@extension != '.xsl']">
 	<xsl:variable name="base_path" select="../../path"/>
 
 	<task type="link">
